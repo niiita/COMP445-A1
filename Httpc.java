@@ -16,7 +16,7 @@ import java.util.regex.*;
 
 public class Httpc {
 	
-	private static Boolean patternCheck = false;
+	private static boolean patternCheck = false;
 	private final static String HTTP_METHOD_GET = "GET";
 	private final static String HTTP_METHOD_POST = "POST"; 
 	private final static String FILE_OPTION = "-f";
@@ -24,9 +24,9 @@ public class Httpc {
 	private final static String VERBOSE_OPTION = "-v";
 	public final static int DEFAULT_PORT = 80;
 	
-	private static Boolean isVerbose = false;
-	private static Boolean isData = false;
-	private static Boolean isFile = false;
+	private static boolean isVerbose = false;
+	private static boolean isData = false;
+	private static boolean isFile = false;
 
 	public static void main(String[] args) {
 		
@@ -186,7 +186,7 @@ public class Httpc {
 	 }
 	
 	
-	 public static void httpc(String path, String host, String type, String query, Boolean isData, Boolean isFile, Boolean isVerbose) {
+	 public static void httpc(String path, String host, String type, String query, boolean isData, boolean isFile, boolean isVerbose) {
 		try {
             if(host == null || host.equals("")){
                host = "google.com";
