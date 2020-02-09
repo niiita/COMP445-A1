@@ -53,8 +53,9 @@ public class Httpc {
 				System.exit(0);
 			}
 			
-			
-			Pattern pattern = Pattern.compile("httpc(\\s+(get|post))(\\s+-v)?(\\s+-h\\s.+:[^\\s]+)?(\\s+-d\\s+'.+')?(\\s+-f\\s+[^\\s]+)?(\\s+'((http[s]?:\\/\\/www\\.|http[s]?:\\/\\/|www\\.)?([^\\/]+)(\\/.+)?)'*)");	
+			Pattern pattern = Pattern.compile("httpc(\\s+(get|post))((\\s+-v)?(\\s+-h\\s+([^\\s]+))?(\\s+-d\\s+('.+'))?(\\s+-f\\s+([^\\s]+))?)(\\s+'((http[s]?:\\/\\/www\\.|http[s]?:\\/\\/|www\\.)?([^\\/]+)(\\/.+)?)'*)");
+
+			//Pattern pattern = Pattern.compile("httpc(\\s+(get|post))(\\s+-v)?(\\s+-h\\s.+:[^\\s]+)?(\\s+-d\\s+'.+')?(\\s+-f\\s+[^\\s]+)?(\\s+'((http[s]?:\\/\\/www\\.|http[s]?:\\/\\/|www\\.)?([^\\/]+)(\\/.+)?)'*)");	
 			
 			// Now create matcher object.
 			Matcher m = pattern.matcher(value); 
@@ -64,29 +65,48 @@ public class Httpc {
 				patternCheck = true;
 				/*
 				 * Group 2: Get or Post				m.group(2)
-				 * Group 3: verbose -v				m.group(3)
-				 * Group 4: header -h				m.group(4)
-				 * Group 5: data -d					m.group(5)
-				 * Group 6: file -f					m.group(6)
-				 * Group 10: Host					m.group(10)
-				 * Group 11: Path					m.group(11)
+				 * Group 4: verbose -v				m.group(4)
+				 * Group 5: header -h				m.group(5)
+				 * Group 6: Header content 			m.group(6)
+				 * Group 7: data -d					m.group(7)
+				 * Group 8: Data content			m.group(8)
+				 * Group 9: file -f					m.group(9)
+				 * Group 10: File content			m.group(10)
+				 * Group 12: URL					m.group(12)
+				 * Group 14: Host					m.group(14)
+				 * Group 15: Path					m.group(15)
 				*/
 				
+				/* 
+				 * To print out the different groups from Regex
+				for(int i = 0; i < 15; i++) {
+						System.out.println("Group " + i + ": " + m.group(i));
+				}
+				**/
+				
+				//POST or GET to upper case
 				String type = m.group(2).toUpperCase();
-				String host = m.group(10).replaceAll("'", "").trim();
+				
+				//Trim the host
+				String host = m.group(14).replaceAll("'", "").trim();
+				
+				//Assign the path if not empty
 				String path = "";
 				
-				if(m.group(11) != null)
+				if(m.group(15) != null)
 				{
-					path = m.group(11).replaceAll("'", "").trim();
+					path = m.group(15).replaceAll("'", "").trim();
 				}
 				
+
+				//Check if -v
+				isVerbose = m.group(4) != null ? true:false;
+				
+				//THIS MIGHT NEED TO BE MODIFIED FOR POST
 				//Check if -d
 				isData = m.group(5) != null? true:false;
 				//Check if -f
 				isFile = m.group(6) != null? true: false;
-				//Check if -v
-				isVerbose = m.group(3) != null ? true:false;
 				
 				//Additional check GET method for cURL
 				if(type.equals(HTTP_METHOD_GET) && (isData || isFile)){
@@ -174,7 +194,53 @@ public class Httpc {
 	 }
 	 
 	 
-	 public static void httpPostRequest () {
+	 public static void httpPostRequest (String host, String path) {
+		 
+		 
+		 try {
+				//Initialize the socket
+				Socket socket = new Socket(host, DEFAULT_PORT);
+				PrintWriter writer = new PrintWriter(socket.getOutputStream());
+		
+				//https://stackoverflow.com/questions/2214308/add-header-in-http-request-in-java
+				
+				//Define the request
+				String request = "";
+				if(path == "" || path == null) {
+					request = "GET / HTTP/1.0\r\nHost: " + host + "\r\n\r\n";
+				}
+				else {
+					request =  "POST " + path + " HTTP/1.0";
+				}
+				
+				
+				 writer.println(request);
+				 writer.println("");
+				 writer.flush();
+				 
+				 BufferedReader bufRead = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+					
+				 String outStr;
+				 String response = "";
+				 
+				 while((outStr = bufRead.readLine()) != null){
+				     response += outStr + "\n";
+				 }
+				 
+				 //Format output as needed
+				 formattedOutputResponse(isVerbose, response);
+				
+				 //Close everything
+				 bufRead.close();
+				 writer.close();
+				 socket.close();
+			}
+			
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
+		 
 		 
 		 //NOT COMPLETE - must be able to output json from .txt file (?)
          String body = "key1=value1&key2=value2";
@@ -197,7 +263,7 @@ public class Httpc {
             	httpGetRequest(host, path);
             }
             else if(type.equals("POST")){
-               httpPostRequest();
+               httpPostRequest(host, path);
             }
 			
 		} catch (Exception e) {
