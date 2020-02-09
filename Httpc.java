@@ -10,7 +10,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.*;
 import java.util.Arrays;
-// import org.json.JSONArray;
+import java.io.FileWriter;
+import java.io.IOException;
 
 
 import java.io.File;
@@ -154,7 +155,9 @@ public class Httpc {
 	                    continue;
 	                }
 	
-	                httpc(path, host, type, null, isData, isFile, isVerbose, filename);
+					httpc(path, host, type, null, isData, isFile, isVerbose, filename);
+					//if we can get redirect working
+					// bonusRedirect();
 	            } else {
 	                System.out.println("The input was incorrect. Please try again. Enter '0' to exit");
 	            }
@@ -226,21 +229,24 @@ public class Httpc {
         try {
             //Initialize the socket
             Socket socket = new Socket(host, DEFAULT_PORT);
-            PrintWriter writer = new PrintWriter(socket.getOutputStream());
+			PrintWriter writer = new PrintWriter(socket.getOutputStream());
+			String fileName = null;
 
             //https://stackoverflow.com/questions/2214308/add-header-in-http-request-in-java
 
-			//Define the request
-			System.out.println(host);
-			System.out.println(path);
+			//Check if output file requested			
+			if(path.contains("-o")){
+				fileName = path.substring(path.indexOf("-o")+3, path.length());
+				path = path.substring(0, path.indexOf("-o"));
+			}
+			
+			//Define the request		
 			String request = "";
             if (path == "" || path == null) {
 				request = "GET / HTTP/1.0\r\nHost: " + host + "\r\n\r\n";
             } else {
                 request = "GET " + path + " HTTP/1.0";
             }
-			System.out.println("host:"+ host);
-			System.out.println("path"+path);
 			writer.println(request);
 
             if (headerString != "") {
@@ -269,11 +275,21 @@ public class Httpc {
             while ((outStr = bufRead.readLine()) != null) {
 				response += outStr + "\n";
 			}
-			System.out.println("respo:\n" + response);
 
-            //Format output as needed
-            // formattedOutputResponse(isVerbose, response);
-
+            // Format output as needed
+			formattedOutputResponse(isVerbose, response);
+			
+			//BONUS: updating cURL command line to output to textfile.
+			if(fileName != null){
+			try {
+						PrintWriter extWriter = new PrintWriter(fileName);
+						System.out.println("resp:" +response);
+						extWriter.write(response);
+						extWriter.close();
+					} catch (IOException e) {
+						System.out.println(e.getMessage());
+					}
+				}
             //Close everything
             bufRead.close();
             writer.close();
@@ -283,7 +299,7 @@ public class Httpc {
         }
     }
 
-    //NEEDS TO BE FIXED
+    //Needed: getting body in json for -d or default
     public static void httpPostRequest(String host, String path, File file, boolean data) {
 
 
@@ -318,8 +334,6 @@ public class Httpc {
 						+ "\r\n"
 						+ dataString.substring(1, dataString.length() - 1);
 
-					System.out.println("dbody" + dataString.substring(1, dataString.length() - 1));
-					System.out.println("drequest" + request);
 			}else if (file != null) {
 
 				BufferedReader in = new BufferedReader(new FileReader(file));
@@ -339,8 +353,6 @@ public class Httpc {
 							+ "Content-Length: " + body.length() +"\r\n"
 							+ "\r\n"
 							+ body;
-					System.out.println("fbody" + body);
-					System.out.println("frequest" + request);
 
 				} in .close();
 				
@@ -356,10 +368,6 @@ public class Httpc {
 					+ "Content-Length: " + body.length() +"\r\n"
 					+ "\r\n"
 					+ body;
-
-					
-					System.out.println("nobody" + body);
-					System.out.println("norequest" + request);
 				}
 			
 			outputStream.write(request.getBytes());
@@ -412,6 +420,35 @@ public class Httpc {
         }
     }
 
+
+	public static void bonusRedirect() {
+		try {
+			Socket socket = new Socket("https://duckduckgo.com/", 80);
+			
+			InputStream inputStream = socket.getInputStream();
+			OutputStream outputStream = socket.getOutputStream();
+			
+			String request = "GET / HTTP/1.0\r\nHost: https://duckduckgo.com/\r\n\r\n";
+			
+			outputStream.write(request.getBytes());
+			outputStream.flush();
+			
+			StringBuilder response = new StringBuilder();
+			
+			int data = inputStream.read();
+			
+			while(data != -1) {
+				response.append((char) data);
+				data = inputStream.read();
+			}
+			
+			System.out.println(response);
+			socket.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
     private static void formattedOutputResponse(boolean isVerbose, String response) {
 
