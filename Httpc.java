@@ -1,12 +1,9 @@
 
 import java.io.BufferedReader;
 import java.io.Console;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -27,6 +24,11 @@ public class Httpc {
 	private static boolean isVerbose = false;
 	private static boolean isData = false;
 	private static boolean isFile = false;
+	private static boolean isHeader = false;
+	
+	private static String dataString = "";
+	private static String headerString = "";
+	private static String fileString = "";
 
 	public static void main(String[] args) {
 		
@@ -102,10 +104,23 @@ public class Httpc {
 				isVerbose = m.group(4) != null ? true:false;
 				
 				//THIS MIGHT NEED TO BE MODIFIED FOR POST
+				//Check if -h
+				isHeader = m.group(5) != null ? true:false;
+				if(isHeader) {
+					headerString = m.group(6);
+				}
+				
 				//Check if -d
-				isData = m.group(5) != null? true:false;
+				isData = m.group(7) != null? true:false;
+				if(isData) {
+					dataString = m.group(8);
+				}
+				
 				//Check if -f
-				isFile = m.group(6) != null? true: false;
+				isFile = m.group(9) != null? true: false;
+				if(isFile) {
+					fileString = m.group(10);
+				}
 				
 				//Additional check GET method for cURL
 				if(type.equals(HTTP_METHOD_GET) && (isData || isFile)){
@@ -128,23 +143,7 @@ public class Httpc {
 				 System.out.println("The input was incorrect. Please try again. Enter '0' to exit");
 			}
 		}
-	}
-	
-	//https://stackoverflow.com/questions/2271800/how-to-read-the-parameters-and-value-from-the-query-string-using-java
-	 public static Map<String, String> getQueryMap(String query)  
-	 {  
-	     String[] params = query.split("&");  
-	     Map<String, String> map = new HashMap<String, String>();  
-	     for (String param : params)  
-	     {  String [] p=param.split("=");
-	         String name = p[0];  
-	       if(p.length>1)  {String value = p[1];  
-	         map.put(name, value);
-	       }  
-	     }  
-	     return map;  
-	 } 
-	 
+	 }
 	 
 	 public static void httpGetRequest(String host, String path) throws Exception{
 		 
@@ -164,8 +163,23 @@ public class Httpc {
 				request =  "GET " + path + " HTTP/1.0";
 			}
 			
-			
 			 writer.println(request);
+			
+			if (headerString != "") {
+	        	String[] keyValues = headerString.split(" ");
+	        	for(int i =0; i < keyValues.length; i++) {
+	        		System.out.println(keyValues[i]);
+	        		writer.println(keyValues[i]);
+	        	}
+	        	
+	        	//Modify the string if necessary
+	        	for (String keyValue : keyValues) {
+	        		if(keyValue.contains("=")){
+	        			writer.println(keyValue.split("=")[0] + ":" + keyValue.split("=")[1]);
+	        		}
+	        	}
+	        }
+			
 			 writer.println("");
 			 writer.flush();
 			 
@@ -213,8 +227,30 @@ public class Httpc {
 					request =  "POST " + path + " HTTP/1.0";
 				}
 				
+				if (headerString != "") {
+		        	String[] keyValues = headerString.split(" ");
+		        	for (String keyValue : keyValues) {	   
+		        		writer.println(keyValue.split("=")[0] + ":" + keyValue.split("=")[1]);
+		        	}
+		        }
 				
 				 writer.println(request);
+				 
+				 if (headerString != "") {
+			        	String[] keyValues = headerString.split(" ");
+			        	for(int i =0; i < keyValues.length; i++) {
+			        		System.out.println(keyValues[i]);
+			        		writer.println(keyValues[i]);
+			        	}
+			        	
+			        	//Modify the string if necessary
+			        	for (String keyValue : keyValues) {
+			        		if(keyValue.contains("=")){
+			        			writer.println(keyValue.split("=")[0] + ":" + keyValue.split("=")[1]);
+			        		}
+		        	}
+		        }
+				 
 				 writer.println("");
 				 writer.flush();
 				 
@@ -250,9 +286,8 @@ public class Httpc {
 						+ "\r\n"
 						+ body;
 	 }
-	
-	
-	 public static void httpc(String path, String host, String type, String query, boolean isData, boolean isFile, boolean isVerbose) {
+
+	public static void httpc(String path, String host, String type, String query, boolean isData, boolean isFile, boolean isVerbose) {
 		try {
             if(host == null || host.equals("")){
                host = "google.com";
@@ -285,5 +320,21 @@ public class Httpc {
 				System.out.println(responseFormatted[i]);
 		}
 	}
+	
+	//https://stackoverflow.com/questions/2271800/how-to-read-the-parameters-and-value-from-the-query-string-using-java
+	 public static Map<String, String> getQueryMap(String query)  
+	 {  
+	     String[] params = query.split("&");  
+	     Map<String, String> map = new HashMap<String, String>();  
+	     for (String param : params)  
+	     {  String [] p=param.split("=");
+	         String name = p[0];  
+	       if(p.length>1)  {String value = p[1];  
+	         map.put(name, value);
+	       }  
+	     }  
+	     return map;  
+	 } 
+	 
 	
 }
