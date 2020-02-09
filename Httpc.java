@@ -1,12 +1,16 @@
 import java.io.BufferedReader;
 import java.io.Console;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.*;
+import java.util.Arrays;
+// import org.json.JSONArray;
 
 
 import java.io.File;
@@ -32,7 +36,8 @@ public class Httpc {
 
     private static String dataString = "";
     private static String headerString = "";
-    private static File filename;
+	private static File filename;
+	
 
     public static void main(String[] args) {
 
@@ -160,8 +165,9 @@ public class Httpc {
             } else {
                 request = "GET " + path + " HTTP/1.0";
             }
-
-            writer.println(request);
+			System.out.println("host:"+ host);
+			System.out.println("path"+path);
+			writer.println(request);
 
             if (headerString != "") {
                 String[] headersArray = headerString.split(" ");
@@ -174,7 +180,7 @@ public class Httpc {
                     if (header.contains("=")) {
                         writer.println(header.split("=")[0] + ":" + header.split("=")[1]);
                     }
-                }
+				}
             }
 
 
@@ -187,11 +193,12 @@ public class Httpc {
             String response = "";
 
             while ((outStr = bufRead.readLine()) != null) {
-                response += outStr + "\n";
-            }
+				response += outStr + "\n";
+			}
+			System.out.println("respo:\n" + response);
 
             //Format output as needed
-            formattedOutputResponse(isVerbose, response);
+            // formattedOutputResponse(isVerbose, response);
 
             //Close everything
             bufRead.close();
@@ -203,26 +210,18 @@ public class Httpc {
     }
 
     //NEEDS TO BE FIXED
-    public static void httpPostRequest(String host, String path, File file) {
+    public static void httpPostRequest(String host, String path, File file, boolean data) {
 
 
         try {
             //Initialize the socket
             Socket socket = new Socket(host, DEFAULT_PORT);
-            PrintWriter writer = new PrintWriter(socket.getOutputStream());
-
-            //https://stackoverflow.com/questions/2214308/add-header-in-http-request-in-java
-
-            //Define the request
-            String request = "";
-            if (path == "" || path == null) {
-                request = "GET / HTTP/1.0\r\nHost: " + host + "\r\n\r\n";
-            } else {
-                request = "POST " + path + " HTTP/1.0";
-            }
-
-            writer.println(request);
-
+			PrintWriter writer = new PrintWriter(socket.getOutputStream());
+			InputStream inputStream = socket.getInputStream();
+			OutputStream outputStream = socket.getOutputStream();
+			String body = "";
+			
+			
             if (headerString != "") {
                 String[] headersArray = headerString.split(" ");
                 for (int i = 0; i < headersArray.length; i++) {
@@ -239,27 +238,44 @@ public class Httpc {
 
             if (file != null) {
 
-                BufferedReader in = new BufferedReader(new FileReader(file));
-
-                String line = "";
+				BufferedReader in = new BufferedReader(new FileReader(file));
+				String line = "";
+				StringBuilder StringBuilder = new StringBuilder();
 
                 while ((line = in .readLine()) != null) {
-                    String test = line.replaceAll("[\\{\\}]", "").replaceAll("\\s", "");
-                    String[] headersArray = test.split(",");
+					String test = line.replaceAll("[\\{\\}]", "").replaceAll("\\s", "");
+					System.out.println(test);
+					String[] headersArray = test.split(",");
                     for (int i = 0; i < headersArray.length; i++) {
-                        //THIS SECTION NEEDS TO BE FIXED
-                        System.out.println("*****************");
-                        System.out.println(headersArray[i]);
-                        System.out.println("*****************");
-                        //writer.println(headersArray[i].trim());
-                        //writer.println("\r\n");
-                    }
+						StringBuilder.append(headersArray[i]+",");
+					}
+					System.out.println("Stringbuilder:" + StringBuilder);
+				
+					body = "{"+StringBuilder.toString().substring(0, StringBuilder.length() - 1)+"}";
 
                 } in .close();
-            }
+			}else{
+				//Must refactor to get data passed in query
+					body = "{"
+							+ "\"Assignment\":1,"
+							+ "\"Course\":Networking"
+							+ "}";
+						}
+			
+			String request = "POST /post?info=info HTTP/1.0\r\n"
+							+ "Content-Type:application/json\r\n"
+							+ "Content-Length: " + body.length() +"\r\n"
+							+ "\r\n"
+							+ body;
+			
+			outputStream.write(request.getBytes());
+			outputStream.flush();
+
 
             writer.println("");
-            writer.flush();
+			writer.flush();
+			
+			
 
             BufferedReader bufRead = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
@@ -281,14 +297,7 @@ public class Httpc {
             e.printStackTrace();
         }
 
-
-        //NOT COMPLETE - must be able to output json from .txt file (?)
-        String body = "key1=value1&key2=value2";
-        String request = "POST /post HTTP/1.0\r\n" +
-            "Content-Type:application/x-www-form-urlencoded\r\n" +
-            "Content-Length: " + body.length() + "\r\n" +
-            "\r\n" +
-            body;
+       
     }
 
     public static void httpc(String path, String host, String type, String query, boolean isData, boolean isFile, boolean isVerbose, File file) {
@@ -301,8 +310,7 @@ public class Httpc {
             if (type.equals("GET")) {
                 httpGetRequest(host, path);
             } else if (type.equals("POST")) {
-
-                httpPostRequest(host, path, file);
+                httpPostRequest(host, path, file, isData);
             }
 
         } catch (Exception e) {
