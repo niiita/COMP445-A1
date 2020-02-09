@@ -230,10 +230,12 @@ public class Httpc {
 
             //https://stackoverflow.com/questions/2214308/add-header-in-http-request-in-java
 
-            //Define the request
-            String request = "";
+			//Define the request
+			System.out.println(host);
+			System.out.println(path);
+			String request = "";
             if (path == "" || path == null) {
-                request = "GET / HTTP/1.0\r\nHost: " + host + "\r\n\r\n";
+				request = "GET / HTTP/1.0\r\nHost: " + host + "\r\n\r\n";
             } else {
                 request = "GET " + path + " HTTP/1.0";
             }
@@ -292,6 +294,7 @@ public class Httpc {
 			InputStream inputStream = socket.getInputStream();
 			OutputStream outputStream = socket.getOutputStream();
 			String body = "";
+			String request = "";
 			
 			
             if (headerString != "") {
@@ -306,9 +309,15 @@ public class Httpc {
                         writer.println(header.split("=")[0] + ":" + header.split("=")[1]);
                     }
                 }
-            }
-
-            if (file != null) {
+			}
+			
+			if(data){
+				request = "POST /post?info=info HTTP/1.0\r\n"
+						+ "Content-Type:application/json\r\n"
+						+ "Content-Length: " + dataString.length() +"\r\n"
+						+ "\r\n"
+						+ dataString;
+			}else if (file != null) {
 
 				BufferedReader in = new BufferedReader(new FileReader(file));
 				String line = "";
@@ -324,21 +333,29 @@ public class Httpc {
 					System.out.println("Stringbuilder:" + StringBuilder);
 				
 					body = "{"+StringBuilder.toString().substring(0, StringBuilder.length() - 1)+"}";
+					request = "POST /post?info=info HTTP/1.0\r\n"
+							+ "Content-Type:application/json\r\n"
+							+ "Content-Length: " + body.length() +"\r\n"
+							+ "\r\n"
+							+ body;
 
-                } in .close();
+				} in .close();
+				
 			}else{
 				//Must refactor to get data passed in query
 					body = "{"
 							+ "\"Assignment\":1,"
 							+ "\"Course\":Networking"
 							+ "}";
+					
+					request = "POST /post?info=info HTTP/1.0\r\n"
+					+ "Content-Type:application/json\r\n"
+					+ "Content-Length: " + body.length() +"\r\n"
+					+ "\r\n"
+					+ body;
 						}
 			
-			String request = "POST /post?info=info HTTP/1.0\r\n"
-							+ "Content-Type:application/json\r\n"
-							+ "Content-Length: " + body.length() +"\r\n"
-							+ "\r\n"
-							+ body;
+					
 			
 			outputStream.write(request.getBytes());
 			outputStream.flush();
