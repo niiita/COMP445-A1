@@ -334,8 +334,6 @@ public class Httpc {
 						+ "\r\n"
 						+ dataString.substring(1, dataString.length() - 1);
 						
-					System.out.println("REQUEST: "+request);
-
 			}else if (file != null) {
 
 				BufferedReader in = new BufferedReader(new FileReader(file));
@@ -355,7 +353,6 @@ public class Httpc {
 							+ "Content-Length: " + body.length() +"\r\n"
 							+ "\r\n"
 							+ body;
-					System.out.println("REQUEST: "+request);
 
 				} in .close();
 				
@@ -371,10 +368,6 @@ public class Httpc {
 					+ "Content-Length: " + body.length() +"\r\n"
 					+ "\r\n"
 					+ body;
-
-					System.out.println(body);System.out.println(request);
-					
-
 				}
 			
 			outputStream.write(request.getBytes());
