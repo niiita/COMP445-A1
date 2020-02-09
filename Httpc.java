@@ -53,9 +53,8 @@ public class Httpc {
 				System.exit(0);
 			}
 			
+			//Regex pattern; separate entities grouped within parenthesis
 			Pattern pattern = Pattern.compile("httpc(\\s+(get|post))((\\s+-v)?(\\s+-h\\s+([^\\s]+))?(\\s+-d\\s+('.+'))?(\\s+-f\\s+([^\\s]+))?)(\\s+'((http[s]?:\\/\\/www\\.|http[s]?:\\/\\/|www\\.)?([^\\/]+)(\\/.+)?)'*)");
-
-			//Pattern pattern = Pattern.compile("httpc(\\s+(get|post))(\\s+-v)?(\\s+-h\\s.+:[^\\s]+)?(\\s+-d\\s+'.+')?(\\s+-f\\s+[^\\s]+)?(\\s+'((http[s]?:\\/\\/www\\.|http[s]?:\\/\\/|www\\.)?([^\\/]+)(\\/.+)?)'*)");	
 			
 			// Now create matcher object.
 			Matcher m = pattern.matcher(value); 
@@ -124,6 +123,7 @@ public class Httpc {
 				
 				httpc(path, host, type, null, isData, isFile, isVerbose);
 			}
+			
 			else {
 				 System.out.println("The input was incorrect. Please try again. Enter '0' to exit");
 			}
@@ -193,7 +193,7 @@ public class Httpc {
 		}
 	 }
 	 
-	 
+	 //NEEDS TO BE FIXED
 	 public static void httpPostRequest (String host, String path) {
 		 
 		 
