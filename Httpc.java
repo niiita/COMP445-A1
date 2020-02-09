@@ -316,7 +316,10 @@ public class Httpc {
 						+ "Content-Type:application/json\r\n"
 						+ "Content-Length: " + dataString.length() +"\r\n"
 						+ "\r\n"
-						+ dataString;
+						+ dataString.substring(1, dataString.length() - 1);
+
+					System.out.println("dbody" + dataString.substring(1, dataString.length() - 1));
+					System.out.println("drequest" + request);
 			}else if (file != null) {
 
 				BufferedReader in = new BufferedReader(new FileReader(file));
@@ -329,23 +332,23 @@ public class Httpc {
 					String[] headersArray = test.split(",");
                     for (int i = 0; i < headersArray.length; i++) {
 						StringBuilder.append(headersArray[i]+",");
-					}
-					System.out.println("Stringbuilder:" + StringBuilder);
-				
+					}				
 					body = "{"+StringBuilder.toString().substring(0, StringBuilder.length() - 1)+"}";
 					request = "POST /post?info=info HTTP/1.0\r\n"
 							+ "Content-Type:application/json\r\n"
 							+ "Content-Length: " + body.length() +"\r\n"
 							+ "\r\n"
 							+ body;
+					System.out.println("fbody" + body);
+					System.out.println("frequest" + request);
 
 				} in .close();
 				
 			}else{
 				//Must refactor to get data passed in query
 					body = "{"
-							+ "\"Assignment\":1,"
-							+ "\"Course\":Networking"
+							+ "\"DefaultAssignment\":1,"
+							+ "\"DefaultCourse\":Networking"
 							+ "}";
 					
 					request = "POST /post?info=info HTTP/1.0\r\n"
@@ -353,9 +356,11 @@ public class Httpc {
 					+ "Content-Length: " + body.length() +"\r\n"
 					+ "\r\n"
 					+ body;
-						}
-			
+
 					
+					System.out.println("nobody" + body);
+					System.out.println("norequest" + request);
+				}
 			
 			outputStream.write(request.getBytes());
 			outputStream.flush();
