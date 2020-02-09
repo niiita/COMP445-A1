@@ -333,6 +333,8 @@ public class Httpc {
 						+ "Content-Length: " + dataString.length() +"\r\n"
 						+ "\r\n"
 						+ dataString.substring(1, dataString.length() - 1);
+						
+					System.out.println("REQUEST: "+request);
 
 			}else if (file != null) {
 
@@ -353,6 +355,7 @@ public class Httpc {
 							+ "Content-Length: " + body.length() +"\r\n"
 							+ "\r\n"
 							+ body;
+					System.out.println("REQUEST: "+request);
 
 				} in .close();
 				
@@ -360,7 +363,7 @@ public class Httpc {
 				//Must refactor to get data passed in query
 					body = "{"
 							+ "\"DefaultAssignment\":1,"
-							+ "\"DefaultCourse\":Networking"
+							+ "\"DefaultCourse\": \"Networking\""
 							+ "}";
 					
 					request = "POST /post?info=info HTTP/1.0\r\n"
@@ -368,6 +371,10 @@ public class Httpc {
 					+ "Content-Length: " + body.length() +"\r\n"
 					+ "\r\n"
 					+ body;
+
+					System.out.println(body);System.out.println(request);
+					
+
 				}
 			
 			outputStream.write(request.getBytes());
