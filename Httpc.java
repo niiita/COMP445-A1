@@ -63,13 +63,13 @@ public class Httpc {
 
 				patternCheck = true;
 				/*
-				 * Group 2: Get or Post					m.group(2)
-				 * Group 3: verbose -v					m.group(3)
-				 * Group 4: data -d						m.group(4)
-				 * Group 5: header -h					m.group(5)
-				 * Group 6: file -f						m.group(6)
-				 * Group 10: Host						m.group(10)
-				 * Group 11: Path						m.group(11)
+				 * Group 2: Get or Post				m.group(2)
+				 * Group 3: verbose -v				m.group(3)
+				 * Group 4: header -h				m.group(4)
+				 * Group 5: data -d					m.group(5)
+				 * Group 6: file -f					m.group(6)
+				 * Group 10: Host					m.group(10)
+				 * Group 11: Path					m.group(11)
 				*/
 				
 				String type = m.group(2).toUpperCase();
@@ -82,7 +82,7 @@ public class Httpc {
 				}
 				
 				//Check if -d
-				isData = m.group(4) != null? true:false;
+				isData = m.group(5) != null? true:false;
 				//Check if -f
 				isFile = m.group(6) != null? true: false;
 				//Check if -v
