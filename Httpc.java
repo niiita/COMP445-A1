@@ -48,100 +48,172 @@ public class Httpc {
             }
             System.exit(0);
         }
-
+        
+        System.out.println("COMP 445 - Assignment #1 - Tse-Chun Lau (29676279), Joo Yeon Lee (25612950)\n");
+        
+        //HTTPC
         while (patternCheck != true) {
-            value = console.readLine("Enter string (0 to exit the application): ");
+        	
+        	System.out.println("MAIN MENU");
+        	System.out.println("1- Enter \"1\" to submit an httpc request");
+        	System.out.println("2- Enter \"2\" to open the help menu");
+        	System.out.println("Enter anything else to exit the application");
+        	String option = console.readLine();
+        	
+        	if(option.equals("1")) {
 
-            //Exit if the value entered is 0
-            if (value.equals("0")) {
-                System.exit(0);
-            }
-
-            //Regex pattern; separate entities grouped within parenthesis
-            Pattern pattern = Pattern.compile("httpc(\\s+(get|post))((\\s+-v)?(\\s+-h\\s+([^\\s]+))?(\\s+-d\\s+('.+'))?(\\s+-f\\s+([^\\s]+))?)(\\s+'((http[s]?:\\/\\/www\\.|http[s]?:\\/\\/|www\\.)?([^\\/]+)(\\/.+)?)'*)");
-
-            // Now create matcher object.
-            Matcher m = pattern.matcher(value);
-
-            if (m.find()) {
-
-                patternCheck = true;
-                /*
-                 * Group 2: Get or Post				m.group(2)
-                 * Group 4: verbose -v				m.group(4)
-                 * Group 5: header -h				m.group(5)
-                 * Group 6: Header content 			m.group(6)
-                 * Group 7: data -d					m.group(7)
-                 * Group 8: Data content			m.group(8)
-                 * Group 9: file -f					m.group(9)
-                 * Group 10: File content			m.group(10)
-                 * Group 12: URL					m.group(12)
-                 * Group 14: Host					m.group(14)
-                 * Group 15: Path					m.group(15)
-                 */
-
-                /* 
-                 * To print out the different groups from Regex
-                for(int i = 0; i < 15; i++) {
-                		System.out.println("Group " + i + ": " + m.group(i));
-                }
-                **/
-
-                //POST or GET to upper case
-                String type = m.group(2).toUpperCase();
-
-                //Trim the host
-                String host = m.group(14).replaceAll("'", "").trim();
-
-                //Assign the path if not empty
-                String path = "";
-
-                if (m.group(15) != null) {
-                    path = m.group(15).replaceAll("'", "").trim();
-                }
-
-
-                //Check if -v
-                isVerbose = m.group(4) != null ? true : false;
-
-                //THIS MIGHT NEED TO BE MODIFIED FOR POST
-                //Check if -h
-                isHeader = m.group(5) != null ? true : false;
-                if (isHeader) {
-                    headerString = m.group(6);
-                }
-
-                //Check if -d
-                isData = m.group(7) != null ? true : false;
-                if (isData) {
-                    dataString = m.group(8);
-                }
-
-                //Check if -f
-                isFile = m.group(9) != null ? true : false;
-                if (isFile) {
-                    filename = new File(m.group(10));
-                }
-
-                //Additional check GET method for cURL
-                if (type.equals(HTTP_METHOD_GET) && (isData || isFile)) {
-                    System.out.println("The GET request cannot be combined with the -f or -d options.");
-                    patternCheck = false;
-                    continue;
-                }
-
-                //Additional check on POST method for cURL
-                if (type.equals(HTTP_METHOD_POST) && isData && isFile) {
-                    System.out.println("The POST request cannot be combined with the -f and the -d options.");
-                    patternCheck = false;
-                    continue;
-                }
-
-                httpc(path, host, type, null, isData, isFile, isVerbose, filename);
-            } else {
-                System.out.println("The input was incorrect. Please try again. Enter '0' to exit");
-            }
+	            value = console.readLine("Enter string (0 to return to the main menu): ");
+	       
+	            //Exit if the value entered is 0
+	            if (value.equals("0")) {
+	                continue;
+	            }
+	
+	            //Regex pattern; separate entities grouped within parenthesis
+	            Pattern pattern = Pattern.compile("httpc(\\s+(get|post))((\\s+-v)?(\\s+-h\\s+([^\\s]+))?(\\s+-d\\s+('.+'))?(\\s+-f\\s+([^\\s]+))?)(\\s+'((http[s]?:\\/\\/www\\.|http[s]?:\\/\\/|www\\.)?([^\\/]+)(\\/.+)?)'*)");
+	
+	            // Now create matcher object.
+	            Matcher m = pattern.matcher(value);
+	
+	            if (m.find()) {
+	
+	                patternCheck = true;
+	                /*
+	                 * Group 2: Get or Post				m.group(2)
+	                 * Group 4: verbose -v				m.group(4)
+	                 * Group 5: header -h				m.group(5)
+	                 * Group 6: Header content 			m.group(6)
+	                 * Group 7: data -d					m.group(7)
+	                 * Group 8: Data content			m.group(8)
+	                 * Group 9: file -f					m.group(9)
+	                 * Group 10: File content			m.group(10)
+	                 * Group 12: URL					m.group(12)
+	                 * Group 14: Host					m.group(14)
+	                 * Group 15: Path					m.group(15)
+	                 */
+	
+	                /* 
+	                 * To print out the different groups from Regex
+	                for(int i = 0; i < 15; i++) {
+	                		System.out.println("Group " + i + ": " + m.group(i));
+	                }
+	                **/
+	
+	                //POST or GET to upper case
+	                String type = m.group(2).toUpperCase();
+	
+	                //Trim the host
+	                String host = m.group(14).replaceAll("'", "").trim();
+	
+	                //Assign the path if not empty
+	                String path = "";
+	
+	                if (m.group(15) != null) {
+	                    path = m.group(15).replaceAll("'", "").trim();
+	                }
+	
+	
+	                //Check if -v
+	                isVerbose = m.group(4) != null ? true : false;
+	
+	                //THIS MIGHT NEED TO BE MODIFIED FOR POST
+	                //Check if -h
+	                isHeader = m.group(5) != null ? true : false;
+	                if (isHeader) {
+	                    headerString = m.group(6);
+	                }
+	
+	                //Check if -d
+	                isData = m.group(7) != null ? true : false;
+	                if (isData) {
+	                    dataString = m.group(8);
+	                }
+	
+	                //Check if -f
+	                isFile = m.group(9) != null ? true : false;
+	                if (isFile) {
+	                    filename = new File(m.group(10));
+	                }
+	
+	                //Additional check GET method for cURL
+	                if (type.equals(HTTP_METHOD_GET) && (isData || isFile)) {
+	                    System.out.println("The GET request cannot be combined with the -f or -d options.");
+	                    patternCheck = false;
+	                    continue;
+	                }
+	
+	                //Additional check on POST method for cURL
+	                if (type.equals(HTTP_METHOD_POST) && isData && isFile) {
+	                    System.out.println("The POST request cannot be combined with the -f and the -d options.");
+	                    patternCheck = false;
+	                    continue;
+	                }
+	
+	                httpc(path, host, type, null, isData, isFile, isVerbose, filename);
+	            } else {
+	                System.out.println("The input was incorrect. Please try again. Enter '0' to exit");
+	            }
+        	}
+        	
+        	//Help
+        	else if (option.equals("2")) {
+        		
+        		System.out.println("Enter one of the following: ");
+        		System.out.println("1- Enter \"1\" to display the general help");
+        		System.out.println("2- Enter \"2\" to display the get help");
+        		System.out.println("3- Enter \"3\" to display the post help");
+        		System.out.println("Enter anything else to return to the main menu");
+        		String helpOption = console.readLine();
+        		
+        		if(helpOption.equals("1") || helpOption.equals("2") || helpOption.equals("3")) {
+        			helpMenu(helpOption);
+        			System.out.println("Enter any key to return to the main menu: ");
+        			console.readLine();
+        		}
+        		else {
+        			continue;
+        		}
+        	}
+        	
+        	//Exit
+        	else  {
+        		System.exit(0);
+        	}
         }
+    }
+    
+    //Displays the help menu
+    public static void helpMenu(String helpOption) {
+    	
+    	if(helpOption.equals("1")) {
+    		System.out.println("httpc help" + "\n");
+			System.out.println("httpc is a curl-like application but supports HTTP protocol only.");
+			System.out.println("Usage:");   
+			System.out.println("\t" + "httpc command [arguments]");
+			System.out.println("The commands are:");
+			System.out.println("\t" + "get" + "\t" + "executes a HTTP GET request and prints the response.");
+			System.out.println("\t" + "post" + "\t" + "executes a HTTP POST request and prints the response.");
+			System.out.println("\t" + "help" + "\t" + "prints this screen." + "\n");
+			System.out.println("Use \"httpc help [command]\" for more information about a command.");
+    	}
+
+    	else if (helpOption.equals("2")) {
+    		System.out.println("httpc help get" + "\n");
+			System.out.println("usage: httpc get [-v] [-h key:value] URL" + "\n");
+			System.out.println("Get executes a HTTP GET request for a given URL." + "\n");
+			System.out.println("\t" + "-v" + "\t\t" + "Prints the detail of the response such as protocol, status, and headers.");
+			System.out.println("\t" + "-h key:value" + "\t" + "Associates headers to HTTP Request with the format 'key:value'.");
+    	}
+    	else {
+    		System.out.println("httpc help post" + "\n");
+    		System.out.println("usage: httpc post [-v] [-h key:value] [-d inline-data] [-f file] URL" + "\n");
+			System.out.println("Post executes a HTTP POST request for a given URL with inline data or from file." + "\n");
+			System.out.println("\t" + "-v" + "\t\t" + "Prints the detail of the response such as protocol, status, and headers.");
+			System.out.println("\t" + "-h key:value" + "\t" + "Associates headers to HTTP Request with the format 'key:value'.");
+			System.out.println("\t" + "-d string" + "\t" + "Associates an inline data to the body HTTP POST request.");
+			System.out.println("\t" + "-f file" + "\t\t" + "Associates the content of a file to the body HTTP POST request." + "\n");
+			System.out.println("Either [-d] or [-f] can be used but not both.");
+    	}	
     }
 
     public static void httpGetRequest(String host, String path) throws Exception {
