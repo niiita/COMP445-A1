@@ -312,13 +312,13 @@ public class Httpc {
 			String body = "";
 			String request = "";
 			
-			
+			//If -h
             if (headerString != "") {
                 String[] headersArray = headerString.split(" ");
                 for (int i = 0; i < headersArray.length; i++) {
                     writer.println(headersArray[i]);
                 }
-
+                
                 //Modify the string if necessary
                 for (String header: headersArray) {
                     if (header.contains("=")) {
@@ -327,25 +327,31 @@ public class Httpc {
                 }
 			}
 			
+            //If -d
 			if(data){
+				System.out.println(dataString);
+				System.out.println(dataString.substring(1, dataString.length() - 1));
 				request = "POST /post?info=info HTTP/1.0\r\n"
 						+ "Content-Type:application/json\r\n"
 						+ "Content-Length: " + dataString.length() +"\r\n"
 						+ "\r\n"
 						+ dataString.substring(1, dataString.length() - 1);
 
-			}else if (file != null) {
+			}
+			
+			//If -f
+			else if (file != null) {
 
 				BufferedReader in = new BufferedReader(new FileReader(file));
 				String line = "";
 				StringBuilder StringBuilder = new StringBuilder();
 
                 while ((line = in .readLine()) != null) {
-					String test = line.replaceAll("[\\{\\}]", "").replaceAll("\\s", "");
-					System.out.println(test);
-					String[] headersArray = test.split(",");
-                    for (int i = 0; i < headersArray.length; i++) {
-						StringBuilder.append(headersArray[i]+",");
+					String formattedLine = line.replaceAll("[\\{\\}]", "").replaceAll("\\s", "");
+
+					String[] linesArray = formattedLine.split(",");
+                    for (int i = 0; i < linesArray.length; i++) {
+						StringBuilder.append(linesArray[i]+",");
 					}				
 					body = "{"+StringBuilder.toString().substring(0, StringBuilder.length() - 1)+"}";
 					request = "POST /post?info=info HTTP/1.0\r\n"
@@ -376,8 +382,6 @@ public class Httpc {
 
             writer.println("");
 			writer.flush();
-			
-			
 
             BufferedReader bufRead = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
