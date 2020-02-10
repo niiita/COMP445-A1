@@ -232,7 +232,11 @@ public class Httpc {
 			PrintWriter writer = new PrintWriter(socket.getOutputStream());
 			String fileName = null;
 
-            //https://stackoverflow.com/questions/2214308/add-header-in-http-request-in-java
+			//https://stackoverflow.com/questions/2214308/add-header-in-http-request-in-java
+			if(path.contains("status_code=3")){
+				System.out.println("redirecting");
+				bonusRedirect();
+			}
 
 			//Check if output file requested			
 			if(path.contains("-o")){
@@ -263,7 +267,6 @@ public class Httpc {
 				}
             }
 
-
             writer.println("");
             writer.flush();
 
@@ -278,7 +281,7 @@ public class Httpc {
 
             // Format output as needed
 			formattedOutputResponse(isVerbose, response);
-			
+
 			//BONUS: updating cURL command line to output to textfile.
 			if(fileName != null){
 			try {
@@ -290,6 +293,8 @@ public class Httpc {
 						System.out.println(e.getMessage());
 					}
 				}
+
+
             //Close everything
             bufRead.close();
             writer.close();
@@ -405,7 +410,7 @@ public class Httpc {
     public static void httpc(String path, String host, String type, String query, boolean isData, boolean isFile, boolean isVerbose, File file) {
         try {
             if (host == null || host.equals("")) {
-                host = "google.com";
+                host = "duckduckgo.com";
             }
 
             //https://stackoverflow.com/questions/2214308/add-header-in-http-request-in-java
@@ -423,25 +428,25 @@ public class Httpc {
 
 	public static void bonusRedirect() {
 		try {
-			Socket socket = new Socket("https://duckduckgo.com/", 80);
-			
+			System.out.println("You are being redirected to duckduckgo :)");
+
+			Socket socket = new Socket("duckduckgo.com", 80);		
 			InputStream inputStream = socket.getInputStream();
 			OutputStream outputStream = socket.getOutputStream();
-			
-			String request = "GET / HTTP/1.0\r\nHost: https://duckduckgo.com/\r\n\r\n";
-			
+						
+			String request = "GET / HTTP/1.0\r\nHost: www.duckduckgo.com\r\n\r\n";
+						
 			outputStream.write(request.getBytes());
 			outputStream.flush();
 			
 			StringBuilder response = new StringBuilder();
-			
 			int data = inputStream.read();
 			
 			while(data != -1) {
 				response.append((char) data);
 				data = inputStream.read();
 			}
-			
+		
 			System.out.println(response);
 			socket.close();
 			
